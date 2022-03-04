@@ -27,36 +27,39 @@ int main(int argc, char** argv) {
                  input_bag_path, Scan::getConfig(&nh_private), &lidar)) {
     ROS_FATAL("Error loading pointclouds from ROS bag.");
     exit(0);
-  }
-
-  bool transforms_from_csv;
-  nh_private.param("transforms_from_csv", transforms_from_csv, false);
-  std::string input_csv_path;
-  ROS_INFO("Loading Transformation Data...                                ");
-  if (transforms_from_csv) {
-    if (!nh_private.getParam("input_csv_path", input_csv_path)) {
-      ROS_FATAL("Could not find input_csv_path parameter, exiting");
-      exit(EXIT_FAILURE);
-    } else if (!loader.loadTformFromMaplabCSV(input_csv_path, &odom)) {
-      ROS_FATAL("Error loading transforms from CSV.");
-      exit(0);
-    }
-  } else if (!loader.loadTformFromROSBag(input_bag_path, &odom)) {
+  } 
+  dbg(input_bag_path);
+//   bool transforms_from_csv;
+//   nh_private.param("transforms_from_csv", transforms_from_csv, false);
+//   std::string input_csv_path;
+//   ROS_INFO("Loading Transformation Data...                                ");
+//   if (transforms_from_csv) {
+//     if (!nh_private.getParam("input_csv_path", input_csv_path)) {
+//       ROS_FATAL("Could not find input_csv_path parameter, exiting");
+//       exit(EXIT_FAILURE);
+//     } else if (!loader.loadTformFromMaplabCSV(input_csv_path, &odom)) {
+//       ROS_FATAL("Error loading transforms from CSV.");
+//       exit(0);
+//     }
+//   } else if (!loader.loadTformFromROSBag(input_bag_path, &odom)) {
+//     ROS_FATAL("Error loading transforms from ROS bag.");
+//     exit(0);
+//   }
+  if (!loader.loadGpsFromROSBag(input_bag_path, &odom)) {
     ROS_FATAL("Error loading transforms from ROS bag.");
     exit(0);
   }
-
   if (lidar.getNumberOfScans() == 0) {
     ROS_FATAL("No data loaded, exiting");
     exit(0);
   }
 
-  ROS_INFO("Interpolating Transformation Data...                          ");
+  ROS_INFO("Interpolating Transformation Data...                          ");   //插值转换数据
   lidar.setOdomOdomTransforms(odom);
-
+  dbg("start aligning...");
   Aligner aligner(Aligner::getConfig(&nh_private));
 
-  aligner.lidarOdomTransform(&lidar, &odom);
+  aligner.lidarOdomTransform(&lidar, &odom);  //执行校准
 
   return 0;
 }

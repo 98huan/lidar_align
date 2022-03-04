@@ -5,11 +5,28 @@
 
 #include <pcl/common/transforms.h>
 #include <pcl/io/ply_io.h>
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+
+#include <pcl/common/common.h>
 #include <pcl/kdtree/kdtree_flann.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <ros/ros.h>
-
+#include <iostream>
 #include "lidar_align/transform.h"
+#include <string>
+
+struct PointXYZTR
+{
+  PCL_ADD_POINT4D;
+  double timestamp;
+  uint16_t ring;
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+}EIGEN_ALIGN16;
+
+POINT_CLOUD_REGISTER_POINT_STRUCT(
+    PointXYZTR,
+    (float, x, x)(float, y, y)(float, z, z)(double, timestamp, timestamp)(uint16_t, ring, ring))
 
 namespace lidar_align {
 
@@ -28,6 +45,7 @@ struct EIGEN_ALIGN16 PointAllFields {
 
 typedef pcl::PointXYZI Point;
 typedef pcl::PointCloud<Point> Pointcloud;
+typedef pcl::PointCloud<PointXYZTR> Pointcloud_TR;
 typedef pcl::PointCloud<PointAllFields> LoaderPointcloud;
 
 class OdomTformData {
@@ -38,8 +56,8 @@ class OdomTformData {
   const Timestamp& getTimestamp() const;
 
  private:
-  Transform T_o0_ot_;
-  Timestamp timestamp_us_;
+  Transform T_o0_ot_;       //从当前时刻到初始时刻的变换
+  Timestamp timestamp_us_;    //时间戳
 };
 
 class Odom {
@@ -60,7 +78,9 @@ class Odom {
 class Scan {
  public:
   struct Config {
-    float min_point_distance = 0.0;
+    float min_point_distance = 0.50;
+//     float min_point_distance = 30.0;    
+//     float max_point_distance = 100.0;
     float max_point_distance = 100.0;
     float keep_points_ratio = 0.01;
     float min_return_intensity = -1.0;
@@ -86,12 +106,11 @@ class Scan {
                                 Pointcloud* pointcloud) const;
 
  private:
-  Timestamp timestamp_us_;  // signed to allow simpler comparisons
-  Pointcloud raw_points_;
-  std::vector<Transform>
-      T_o0_ot_;  // absolute odom transform to each point in pointcloud
-
+  Timestamp timestamp_us_;  // signed to allow simpler comparisons扫描起始时间
+  Pointcloud raw_points_;   // 本次扫描的点云
+  std::vector<Transform> T_o0_ot_;  // absolute odom transform to each point in pointcloud
   bool odom_transform_set_;
+
 };
 
 class Lidar {
@@ -121,9 +140,9 @@ class Lidar {
 
  private:
   LidarId lidar_id_;
-  Transform T_o_l_;  // transform from lidar to odometry
+  Transform T_o_l_;  // transform from lidar to odometry  外参
 
-  std::vector<Scan> scans_;
+  std::vector<Scan> scans_;   // 所有扫描的数据
 };
 
 }  // namespace lidar_align

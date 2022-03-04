@@ -2,17 +2,17 @@
 #define LIDAR_ALIGN_TRANSFORM_H_
 
 #include <Eigen/Geometry>
-
+#include "dbg.h"
 namespace lidar_align {
 
 class Transform {
  public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW   //这个宏在new一个对象时会总是返回一个对齐的指针
 
   typedef Eigen::Matrix<float, 6, 1> Vector6;
   typedef Eigen::Quaternionf Rotation;
   typedef Eigen::Vector3f Translation;
-  typedef Eigen::Matrix<float, 4, 4> Matrix;
+  typedef Eigen::Matrix<float, 4, 4> Matrix; 
 
   Transform() {
     rotation_.setIdentity();

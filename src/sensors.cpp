@@ -5,7 +5,10 @@ namespace lidar_align {
 OdomTformData::OdomTformData(Timestamp timestamp_us, Transform T_o0_ot)
     : timestamp_us_(timestamp_us), T_o0_ot_(T_o0_ot) {}
 
-const Transform& OdomTformData::getTransform() const { return T_o0_ot_; }
+const Transform& OdomTformData::getTransform() const { 
+  
+  return T_o0_ot_; 
+}
 
 const Timestamp& OdomTformData::getTimestamp() const { return timestamp_us_; }
 
@@ -110,19 +113,32 @@ void Scan::setOdomTransform(const Odom& odom, const double time_offset,
   T_o0_ot_.clear();
 
   size_t i = 0;
+  static bool flag = true;
+  Timestamp point_ts_end;
+  if( flag)
+  {
+    dbg(timestamp_us_ * 1.0 / 1000000.0);
+    std::cout << std::setprecision(16) << timestamp_us_ * 1.0 / 1000000.0 <<std::endl;
+  }
   for (Point point : raw_points_) {
-    // NOTE: This static cast is really really important. Without it the
-    // timestamp_us will be cast to a float, as it is a very large number it
-    // will have quite low precision and when it is cast back to a long int
-    // will be a very different value (about 2 to 3 million lower in some
-    // quick tests). This difference will then break everything.
+    /* NOTE: This static cast is really really important. Without it the
+    timestamp_us will be cast to a float, as it is a very large number it
+    will have quite low precision and when it is cast back to a long int
+    will be a very different value (about 2 to 3 million lower in some
+    quick tests). This difference will then break everything. */
     Timestamp point_ts_us = timestamp_us_ +
                             static_cast<Timestamp>(1000000.0 * time_offset) +
                             static_cast<Timestamp>(point.intensity);
-
     T_o0_ot_.push_back(
         odom.getOdomTransform(point_ts_us, start_idx, match_idx));
+    point_ts_end = point_ts_us;
   }
+  if( flag)
+  {
+    dbg(point_ts_end * 1.0 / 1000000.0);
+    std::cout << std::setprecision(16) << point_ts_end * 1.0 / 1000000.0 <<std::endl;
+  }
+  flag = false;
   odom_transform_set_ = true;
 }
 
@@ -131,19 +147,34 @@ const Transform& Scan::getOdomTransform() const {
     throw std::runtime_error(
         "Attempted to get odom transform before it was set");
   }
-  return T_o0_ot_.front();
+  return T_o0_ot_.front();      //返回每一帧的第一个转移矩阵，表示相邻两帧间的坐标转换
 }
 
 void Scan::getTimeAlignedPointcloud(const Transform& T_o_l,
                                     Pointcloud* pointcloud) const {
+//   Pointcloud *printpointcloud;
+//   int num(0);
+//   std::string s1("/home/zh/bags/pcd");
+//   std::string s2(std::to_string(++num));
+//   std::string s3(".pcd");
+//   s1.append(s2.append(s3));
   for (size_t i = 0; i < raw_points_.size(); ++i) {
     Transform T_o_lt = T_o0_ot_[i] * T_o_l;
-
+    
+//     if(i == 0)
+//     {
+//       std::cout << "pose:" << T_o0_ot_[i].translation() << std::endl;
+//     }
+//     printpointcloud->push_back(raw_points_[i]);
+    
     Eigen::Affine3f pcl_transform;
 
     pcl_transform.matrix() = T_o_lt.matrix();
     pointcloud->push_back(pcl::transformPoint(raw_points_[i], pcl_transform));
   }
+//   std::cout << "保存pcd文件中..." << std::endl;
+//   pcl::io::savePCDFileASCII(s1, *printpointcloud);
+  
 }
 
 const Pointcloud& Scan::getRawPointcloud() const { return raw_points_; }
@@ -177,15 +208,26 @@ void Lidar::saveCombinedPointcloud(const std::string& file_path) const {
   Pointcloud combined;
 
   getCombinedPointcloud(&combined);
+  int i = 0;
+  
+  //输出每一帧的translation平移量
+//  for (const Scan& scan : scans_)
+//  {
+//    std::cout<< i++ << " : " << scan.getOdomTransform().translation().transpose() <<std::endl;
+//  }
   pcl::PLYWriter writer;
   writer.write(file_path, combined, true);
 }
 
 void Lidar::setOdomOdomTransforms(const Odom& odom, const double time_offset) {
   size_t idx = 0;
+  static bool flag = false;
   for (Scan& scan : scans_) {
     scan.setOdomTransform(odom, time_offset, idx, &idx);
+//     if(!flag)
+//       dbg(idx);
   }
+  flag = true;
 }
 
 void Lidar::setOdomLidarTransform(const Transform& T_o_l) { T_o_l_ = T_o_l; }

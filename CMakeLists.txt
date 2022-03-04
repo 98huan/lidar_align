@@ -3,6 +3,10 @@ project(lidar_align)
 
 add_definitions(-std=c++11 -ofast)
 
+set(catkin_DIR /opt/ros/kinetic/share/catkin/cmake)
+set(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev)
+
+include_directories(${catkin_DIR})
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   image_transport
@@ -11,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   rosbag
   sensor_msgs
   geometry_msgs
+  gps_common
+  OpenCV
 )
 
 # NLOPT is frustratingly inconsistent in the name of its cmake file so we use our own
@@ -20,7 +26,9 @@ find_package(NLOPT REQUIRED)
 include_directories(
   include
   ${NLOPT_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -39,7 +47,7 @@ add_executable(lidar_align_node
   src/lidar_align_node.cpp
   
 )
-target_link_libraries(lidar_align_node ${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(lidar_align_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 install(DIRECTORY include/lidar_align
   DESTINATION include

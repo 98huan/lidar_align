@@ -5,7 +5,8 @@
 #include <ros/ros.h>
 
 #include "lidar_align/sensors.h"
-
+#include <gps_common/GPSFix.h>
+#include "rigid.h"
 #define PCL_NO_PRECOMPILE
 
 namespace lidar_align {
@@ -13,7 +14,11 @@ namespace lidar_align {
 class Loader {
  public:
   struct Config {
-    int use_n_scans = std::numeric_limits<int>::max();
+
+//     int use_n_scans = 2000;    //08-05-20-04.bag
+//     int use_n_scans = 320;    //08_filter.bag
+    //int use_n_scans = 750;    // iplus_bag_S2_filter.bag
+    int use_n_scans = 500;    // iplus_bag_S2_filter1.bag
   };
 
   Loader(const Config& config);
@@ -25,6 +30,8 @@ class Loader {
                                 const Scan::Config& scan_config, Lidar* lidar);
 
   bool loadTformFromROSBag(const std::string& bag_path, Odom* odom);
+  
+  bool loadGpsFromROSBag(const std::string& bag_path, Odom* odom);
 
   bool loadTformFromMaplabCSV(const std::string& csv_path, Odom* odom);
 
