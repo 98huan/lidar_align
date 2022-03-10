@@ -7,12 +7,20 @@ Aligner::Aligner(const Config& config) : config_(config){};
 Aligner::Config Aligner::getConfig(ros::NodeHandle* nh) {
   Aligner::Config config;
   nh->param("local", config.local, config.local);dbg(config.local);
-  nh->param("inital_guess", config.inital_guess, config.inital_guess);dbg(config.inital_guess);
+  nh->getParam("initial_pose", initial_pose);dbg(initial_pose); //从launch文件获取外参初值
+  strStr << initial_pose;
+  for (int k = 0; k < 7; k++)
+  {
+    strStr >> config.inital_guess[k];
+  }
+//   nh->param("inital_guess", config.inital_guess, config.inital_guess);dbg(config.inital_guess);
+  
   nh->param("max_time_offset", config.max_time_offset, config.max_time_offset);dbg(config.max_time_offset);
   nh->param("angular_range", config.angular_range, config.angular_range);dbg(config.angular_range);
   nh->param("translation_range", config.translation_range,
             config.translation_range);dbg(config.translation_range);
-  nh->param("max_evals", config.max_evals, config.max_evals);dbg(config.max_evals);
+  nh->getParam("max_evals", config.max_evals);dbg(config.max_evals);
+//   nh->param("max_evals", config.max_evals, config.max_evals);dbg(config.max_evals);
   nh->param("xtol", config.xtol, config.xtol);dbg(config.xtol);
   nh->param("knn_batch_size", config.knn_batch_size, config.knn_batch_size);dbg(config.knn_batch_size);
   nh->param("knn_k", config.knn_k, config.knn_k);dbg(config.knn_k);

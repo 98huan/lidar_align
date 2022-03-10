@@ -14,11 +14,7 @@ namespace lidar_align {
 class Loader {
  public:
   struct Config {
-
-//     int use_n_scans = 2000;    //08-05-20-04.bag
-//     int use_n_scans = 320;    //08_filter.bag
-    //int use_n_scans = 750;    // iplus_bag_S2_filter.bag
-    int use_n_scans = 500;    // iplus_bag_S2_filter1.bag
+    int use_n_scans = 0;  //在launch文件中改使用的雷达帧数
   };
 
   Loader(const Config& config);

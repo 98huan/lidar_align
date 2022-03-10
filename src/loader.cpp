@@ -68,7 +68,8 @@ Loader::Loader(const Config& config) : config_(config) {}
 
 Loader::Config Loader::getConfig(ros::NodeHandle* nh) {
   Loader::Config config;
-  nh->param("use_n_scans", config.use_n_scans, config.use_n_scans);
+  nh->getParam("use_LidarScan_number", config.use_n_scans);dbg(config.use_n_scans); //从launch文件中读取使用的雷达帧数
+//   nh->param("use_n_scans", config.use_n_scans, config.use_n_scans);
   return config;
 }
 
@@ -277,30 +278,26 @@ bool Loader::loadGpsFromROSBag(const std::string& bag_path, Odom* odom)
                                     fix_pose1.rotation().x(),
                                     fix_pose1.rotation().y(),
                                     fix_pose1.rotation().z()));
-    odom->addTransformData(stamp, T);   //在这里画出gps的轨迹
+    odom->addTransformData(stamp, T);   
     
-//     ROS_INFO("%d:rx:%f,ry:%f,rz:%f", ++num, fix_pose1.rotation().x(), fix_pose1.rotation().y(), fix_pose1.rotation().z());
-//     std::cout << "angle:" << fix_pose1.rotation().z() << std::endl;
-    
+//在这里画出gps的轨迹
 //     把gps的数据放入容器中
-    gps.push_back(point2d(T.translation().x(), T.translation().y()));
+//     gps.push_back(point2d(T.translation().x(), T.translation().y()));
   }
 
   if (odom->empty()) {
     ROS_ERROR_STREAM("No odom messages found!");
     return false;
   }
-  Mat img(1200, 1000, CV_8UC3, cv::Scalar(255,255,255));    //创建1000×1000大小的像素快，原点在左上角
-  for (int i = 0; i < gps.size(); i++){
-//     std::cout << i << ":" << "x=" << gps[i].x << ":y=" << gps[i].y << std::endl;
-//     std::cout << i << ":angle=" << 180*atan(gps[i].y/gps[i].x)/3.1415926 << std::endl;
-    double gps_current_x = gps[i].x * 20 + 50;   //向右偏移
-    double gps_current_y = gps[i].y * 20 + 500;   //向下偏移
-//     dbg(gps[i].x,gps[i].y );
-    circle(img, point2d(gps_current_x, gps_current_y),1, Scalar(255,0,0));    //画布、圆心、半径、颜色
-  }
+//   Mat img(1200, 1000, CV_8UC3, cv::Scalar(255,255,255));    //创建1000×1000大小的像素快，原点在左上角
+//   for (int i = 0; i < gps.size(); i++){
+//     double gps_current_x = gps[i].x * 20 + 50;   //向右偏移
+//     double gps_current_y = gps[i].y * 20 + 500;   //向下偏移
+// //     dbg(gps[i].x,gps[i].y );
+//     circle(img, point2d(gps_current_x, gps_current_y),1, Scalar(255,0,0));    //画布、圆心、半径、颜色
+//   }
 //   imwrite(std::string(getenv("HOME")) + "/gps_path.png", img);
-  imwrite("/home/zh/图片/gps_path.png", img);
+//   imwrite("/home/gps_path.png", img);
   
   return true;
 }
