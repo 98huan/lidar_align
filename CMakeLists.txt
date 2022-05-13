@@ -3,8 +3,8 @@ project(lidar_align)
 
 add_definitions(-std=c++11 -ofast)
 
-set(catkin_DIR /opt/ros/kinetic/share/catkin/cmake)
-set(OpenCV_DIR /opt/ros/kinetic/share/OpenCV-3.3.1-dev)
+set(catkin_DIR /opt/ros/melodic/share/catkin/cmake)
+set(OpenCV_DIR /usr/share/OpenCV)
 
 include_directories(${catkin_DIR})
 find_package(catkin REQUIRED COMPONENTS

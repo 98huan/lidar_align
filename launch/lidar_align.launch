@@ -4,7 +4,7 @@
 <!--   <arg name="bag_file" default="/home/zh/bags/08-05-20-04.bag"/>  -->
 <!--   <arg name="bag_file" default="/home/zh/bags/08_filter.bag"/> -->
 <!--   <arg name="bag_file" default="/home/zh/bags/iplus_bag_S/iplus_bag_S_big.bag"/> -->
-  <arg name="bag_file" default="/home/zh/bags/iplus_bag_S/1-3分钟/iplus_bag_S2_filter1.bag"/>   <!-- 需要标定的目标bag绝对路径 -->
+  <arg name="bag_file" default="/home/zhonghuan/bagfiles/iplus_bag_S2.bag"/>   <!-- 需要标定的目标bag绝对路径 -->
   
   <arg name="transforms_from_csv" default="false"/>
   <arg name="csv_file" default="PATH/TO/YOUR.csv"/>
@@ -13,7 +13,7 @@
     <param name="input_bag_path" value="$(arg bag_file)" /> 
     <param name="input_csv_path" value="$(arg csv_file)" />
     <param name="initial_pose" value="0.0 0.0 0.0 0.0 0.0 0.0 0.0" />     <!-- 7个外参分别为x y z roll pitch yawl 时间偏移(默认为0)  -->
-    <param name="use_LidarScan_number" value="500" />       <!-- 使用的雷达帧数 -->
+    <param name="use_LidarScan_number" value="100" />       <!-- 使用的雷达帧数 -->
     <param name="max_evals" value="300" />     <!-- 最大迭代次数 -->
     <param name="output_pointcloud_path" value="$(find lidar_align)/results/lidar.ply" />   <!-- 映射地图的输出路径 -->
     <param name="output_calibration_path" value="$(find lidar_align)/results/$(anon calibration).txt" />    <!-- 标定结果的输出路径 -->
