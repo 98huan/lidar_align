@@ -20,12 +20,12 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 # NLOPT is frustratingly inconsistent in the name of its cmake file so we use our own
-list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR})
-find_package(NLOPT REQUIRED)
+# list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR})
+find_package(NLopt REQUIRED)
 
 include_directories(
   include
-  ${NLOPT_INCLUDE_DIRS}
+  ${NLopt_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
