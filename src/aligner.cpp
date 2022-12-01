@@ -6,33 +6,32 @@ Aligner::Aligner(const Config& config) : config_(config){};
 
 Aligner::Config Aligner::getConfig(ros::NodeHandle* nh) {
   Aligner::Config config;
-  nh->param("local", config.local, config.local);dbg(config.local);
-  nh->getParam("initial_pose", initial_pose);dbg(initial_pose); //从launch文件获取外参初值
-  strStr << initial_pose;
+  nh->param("local", config.local, config.local);   //dbg(config.local);
+  
+  // 从参数服务器传入初始位姿
+  std::stringstream ss;
+  nh->getParam("initial_pose", config.initial_pose);
+  ss << config.initial_pose;
   for (int k = 0; k < 7; k++)
   {
-    strStr >> config.inital_guess[k];
+    ss >> config.initial_guess[k];
   }
-//   nh->param("inital_guess", config.inital_guess, config.inital_guess);dbg(config.inital_guess);
-  
-  nh->param("max_time_offset", config.max_time_offset, config.max_time_offset);dbg(config.max_time_offset);
-  nh->param("angular_range", config.angular_range, config.angular_range);dbg(config.angular_range);
-  nh->param("translation_range", config.translation_range,
-            config.translation_range);dbg(config.translation_range);
-  nh->getParam("max_evals", config.max_evals);dbg(config.max_evals);
-//   nh->param("max_evals", config.max_evals, config.max_evals);dbg(config.max_evals);
-  nh->param("xtol", config.xtol, config.xtol);dbg(config.xtol);
-  nh->param("knn_batch_size", config.knn_batch_size, config.knn_batch_size);dbg(config.knn_batch_size);
-  nh->param("knn_k", config.knn_k, config.knn_k);dbg(config.knn_k);
-  nh->param("global_knn_max_dist", config.global_knn_max_dist,
-            config.global_knn_max_dist);dbg(config.global_knn_max_dist);
-  nh->param("local_knn_max_dist", config.local_knn_max_dist,
-            config.local_knn_max_dist);dbg(config.local_knn_max_dist);
-  nh->param("time_cal", config.time_cal, config.time_cal);dbg(config.time_cal);
-  nh->param("output_pointcloud_path", config.output_pointcloud_path,
-            config.output_pointcloud_path);dbg(config.output_pointcloud_path);
-  nh->param("output_calibration_path", config.output_calibration_path,
-            config.output_calibration_path);dbg(config.output_calibration_path);
+  dbg(config.initial_guess); //从launch文件获取外参初值
+
+  nh->param("max_time_offset", config.max_time_offset, config.max_time_offset);   //dbg(config.max_time_offset);
+  nh->param("angular_range", config.angular_range, config.angular_range);   //dbg(config.angular_range);
+  nh->param("translation_range", config.translation_range, config.translation_range);    //dbg(config.translation_range);
+  nh->getParam("max_evals", config.max_evals);    //dbg(config.max_evals);
+  nh->param("xtol", config.xtol, config.xtol);    //dbg(config.xtol);
+  nh->param("knn_batch_size", config.knn_batch_size, config.knn_batch_size);    //dbg(config.knn_batch_size);
+  nh->param("knn_k", config.knn_k, config.knn_k);   //dbg(config.knn_k);
+  nh->param("global_knn_max_dist", config.global_knn_max_dist, config.global_knn_max_dist);    //dbg(config.global_knn_max_dist);
+  nh->param("local_knn_max_dist", config.local_knn_max_dist, config.local_knn_max_dist);   //dbg(config.local_knn_max_dist);
+  nh->param("time_cal", config.time_cal, config.time_cal);    //dbg(config.time_cal);
+  nh->param("output_pointcloud_path", config.output_pointcloud_path, config.output_pointcloud_path);
+  dbg(config.output_pointcloud_path);
+  nh->param("output_calibration_path", config.output_calibration_path, config.output_calibration_path);
+  dbg(config.output_calibration_path);
   
   return config;
 }
@@ -154,7 +153,7 @@ void Aligner::optimize(const std::vector<double>& lb,
                        const std::vector<double>& ub, OptData* opt_data,
                        std::vector<double>* x) {
   nlopt::opt opt;
-  dbg(config_.local);
+  // dbg(config_.local);
   if (config_.local) {//看是执行全局优化还是局部优化,用的算法不同,x的个数在前面配置的也不同.全局优化为3个,只求角度;局部优化为7个
     opt = nlopt::opt(nlopt::LN_BOBYQA, x->size());  //无导数局部最优算法BOBYQA
   } else {
@@ -173,10 +172,10 @@ void Aligner::optimize(const std::vector<double>& lb,
 
   double minf;
   std::vector<double> grad;
-  dbg(config_.local);
+  // dbg(config_.local);
   nlopt::result result = opt.optimize(*x, minf);
   LidarOdomMinimizer(*x, grad, opt_data);
-  dbg(config_.local);
+  // dbg(config_.local);
 }
 
 std::string Aligner::generateCalibrationString(const Transform& T,
@@ -295,7 +294,7 @@ void Aligner::lidarOdomTransform(Lidar* lidar, Odom* odom) {
 //     x[5] = ;
 
   } else {//local为true的话 则为默认的初始值
-    x = config_.inital_guess; //初始值全为0 局部优化则初始认为lidar和imu的坐标轴一致对齐,其它情况最好按实际情况粗略配置初始值 
+    x = config_.initial_guess; //初始值全为0 局部优化则初始认为lidar和imu的坐标轴一致对齐,其它情况最好按实际情况粗略配置初始值 
   }
 
   ROS_INFO("Performing Local Optimization...                                ");
@@ -311,8 +310,8 @@ void Aligner::lidarOdomTransform(Lidar* lidar, Odom* odom) {
       config_.translation_range, config_.angular_range,
       config_.angular_range,     config_.angular_range};
   //将全局优化得到的角度的初始估计值叠加到上下限中，也就是说初始估计 roll 为0.1弧度，则优化的范围是 0.1 +- 0.5 弧度
-  dbg(lb);
-  dbg(ub);
+  // dbg(lb);
+  // dbg(ub);
   for (size_t i = 0; i < 6; ++i) {
     lb[i] += x[i];  //叠加下限
     ub[i] += x[i];  //叠加上限
@@ -322,9 +321,9 @@ void Aligner::lidarOdomTransform(Lidar* lidar, Odom* odom) {
     ub.push_back(config_.max_time_offset);
     lb.push_back(-config_.max_time_offset);
   }
-  dbg(lb);
-  dbg(ub);
-  dbg(x);
+  // dbg(lb);
+  // dbg(ub);
+  // dbg(x);
   /*执行局部优化*/
   optimize(lb, ub, &opt_data, &x);
 

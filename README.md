@@ -16,7 +16,8 @@ To install lidar_align, please install [ROS Indigo](http://wiki.ros.org/indigo/I
 
 The following additional system dependencies are also required:
 ```
-sudo apt-get install libnlopt-dev
+sudo apt install libnlopt-dev
+sudo apt install libnlopt-cxx-dev
 ```
 ## Input Transformations
 
@@ -103,11 +104,11 @@ Note that Maplab has two CSV exporters. This file-format is the same as produced
 ### Alinger Parameters
 | Parameter | Description | Default |
 | --------------------  |:-----------:| :-------:|
-| `local` |  If False a global optimization will be performed and the result of this will be used in place of the `inital_guess` parameter. | false |
-| `inital_guess` |  Initial guess to the calibration (x, y, z, rotation vector, time offset), only used if running in `local` mode. | [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] |
+| `local` |  If False a global optimization will be performed and the result of this will be used in place of the `initial_guess` parameter. | false |
+| `initial_guess` |  Initial guess to the calibration (x, y, z, rotation vector, time offset), only used if running in `local` mode. | [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0] |
 | `max_time_offset` |  Maximum time offset between sensor clocks in seconds. | 0.1 |
-| `angular_range` | Search range in radians around the `inital_guess` during the local optimization stage. | 0.5 |
-| `translational_range` | Search range around the `inital_guess` during the local optimization stage. | 1.0 |
+| `angular_range` | Search range in radians around the `initial_guess` during the local optimization stage. | 0.5 |
+| `translational_range` | Search range around the `initial_guess` during the local optimization stage. | 1.0 |
 | `max_evals` | Maximum number of function evaluations to run | 200 |
 | `xtol` | Tolerance of final solution | 0.0001 |
 | `knn_batch_size` | Number of points to send to each thread when finding nearest points | 1000 |

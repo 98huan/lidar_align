@@ -112,14 +112,14 @@ void Scan::setOdomTransform(const Odom& odom, const double time_offset,
                             const size_t start_idx, size_t* match_idx) {
   T_o0_ot_.clear();
 
-  size_t i = 0;
-  static bool flag = true;
-  Timestamp point_ts_end;
-  if( flag)
-  {
-    dbg(timestamp_us_ * 1.0 / 1000000.0);
-    std::cout << std::setprecision(16) << timestamp_us_ * 1.0 / 1000000.0 <<std::endl;
-  }
+  // size_t i = 0;
+  // static bool flag = true;
+  // Timestamp point_ts_end;
+  // if( flag)
+  // {
+  //   dbg(timestamp_us_ * 1.0 / 1000000.0);
+  //   std::cout << std::setprecision(16) << timestamp_us_ * 1.0 / 1000000.0 <<std::endl;
+  // }
   for (Point point : raw_points_) {
     /* NOTE: This static cast is really really important. Without it the
     timestamp_us will be cast to a float, as it is a very large number it
@@ -129,16 +129,15 @@ void Scan::setOdomTransform(const Odom& odom, const double time_offset,
     Timestamp point_ts_us = timestamp_us_ +
                             static_cast<Timestamp>(1000000.0 * time_offset) +
                             static_cast<Timestamp>(point.intensity);
-    T_o0_ot_.push_back(
-        odom.getOdomTransform(point_ts_us, start_idx, match_idx));
-    point_ts_end = point_ts_us;
+    T_o0_ot_.push_back(odom.getOdomTransform(point_ts_us, start_idx, match_idx));
+    // point_ts_end = point_ts_us;
   }
-  if( flag)
-  {
-    dbg(point_ts_end * 1.0 / 1000000.0);
-    std::cout << std::setprecision(16) << point_ts_end * 1.0 / 1000000.0 <<std::endl;
-  }
-  flag = false;
+  // if( flag)
+  // {
+  //   dbg(point_ts_end * 1.0 / 1000000.0);
+  //   std::cout << std::setprecision(16) << point_ts_end * 1.0 / 1000000.0 <<std::endl;
+  // }
+  // flag = false;
   odom_transform_set_ = true;
 }
 
@@ -221,13 +220,13 @@ void Lidar::saveCombinedPointcloud(const std::string& file_path) const {
 
 void Lidar::setOdomOdomTransforms(const Odom& odom, const double time_offset) {
   size_t idx = 0;
-  static bool flag = false;
+  // static bool flag = false;
   for (Scan& scan : scans_) {
     scan.setOdomTransform(odom, time_offset, idx, &idx);
 //     if(!flag)
 //       dbg(idx);
   }
-  flag = true;
+  // flag = true;
 }
 
 void Lidar::setOdomLidarTransform(const Transform& T_o_l) { T_o_l_ = T_o_l; }

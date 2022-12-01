@@ -1,12 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.0.2)
 project(lidar_align)
 
-add_definitions(-std=c++11 -ofast)
+# set(CMAKE_BUILD_TYPE "RelWithDebInfo")  //调试用
 
-set(catkin_DIR /opt/ros/melodic/share/catkin/cmake)
-set(OpenCV_DIR /usr/share/OpenCV)
+add_definitions(-std=c++14 -ofast)
 
-include_directories(${catkin_DIR})
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   image_transport
@@ -16,11 +14,9 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   gps_common
-  OpenCV
 )
 
 # NLOPT is frustratingly inconsistent in the name of its cmake file so we use our own
-# list(APPEND CMAKE_FIND_ROOT_PATH ${CMAKE_SOURCE_DIR})
 find_package(NLopt REQUIRED)
 
 include_directories(
@@ -28,7 +24,6 @@ include_directories(
   ${NLopt_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
 )
 
 add_library(${PROJECT_NAME}
@@ -45,9 +40,8 @@ catkin_package(
 
 add_executable(lidar_align_node
   src/lidar_align_node.cpp
-  
 )
-target_link_libraries(lidar_align_node ${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+target_link_libraries(lidar_align_node ${PROJECT_NAME} ${catkin_LIBRARIES})
 
 install(DIRECTORY include/lidar_align
   DESTINATION include

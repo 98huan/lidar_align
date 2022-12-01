@@ -7,15 +7,15 @@
 
 #include <iostream> 
 #include <stdio.h>
-#include <opencv2/core/core.hpp>  
-#include <opencv2/highgui/highgui.hpp>  
-#include <opencv2/opencv.hpp>
-using namespace cv;
+// #include <opencv2/core/core.hpp>  
+// #include <opencv2/highgui/highgui.hpp>  
+// #include <opencv2/opencv.hpp>
+// using namespace cv;
 using namespace std;
 
 
-typedef cv::Point2d point2d;
-vector<point2d> gps;
+// typedef cv::Point2d point2d;
+// vector<point2d> gps;
 
 namespace lidar_align {
 using namespace std;
@@ -68,8 +68,7 @@ Loader::Loader(const Config& config) : config_(config) {}
 
 Loader::Config Loader::getConfig(ros::NodeHandle* nh) {
   Loader::Config config;
-  nh->getParam("use_LidarScan_number", config.use_n_scans);dbg(config.use_n_scans); //从launch文件中读取使用的雷达帧数
-//   nh->param("use_n_scans", config.use_n_scans, config.use_n_scans);
+  nh->getParam("use_LidarScan_number", config.use_n_scans); //从launch文件中读取使用的雷达帧数
   return config;
 }
 
@@ -152,7 +151,7 @@ void Loader::parsePointcloudMsg(const sensor_msgs::PointCloud2 msg,
 bool Loader::loadPointcloudFromROSBag(const std::string& bag_path,
                                       const Scan::Config& scan_config,
                                       Lidar* lidar) {
-  std::cout << bag_path <<endl;
+  dbg(bag_path);
   rosbag::Bag bag;
   try {
     bag.open(bag_path, rosbag::bagmode::Read);
@@ -293,7 +292,7 @@ bool Loader::loadGpsFromROSBag(const std::string& bag_path, Odom* odom)
 //   for (int i = 0; i < gps.size(); i++){
 //     double gps_current_x = gps[i].x * 20 + 50;   //向右偏移
 //     double gps_current_y = gps[i].y * 20 + 500;   //向下偏移
-// //     dbg(gps[i].x,gps[i].y );
+//     dbg(gps[i].x,gps[i].y );
 //     circle(img, point2d(gps_current_x, gps_current_y),1, Scalar(255,0,0));    //画布、圆心、半径、颜色
 //   }
 //   imwrite(std::string(getenv("HOME")) + "/gps_path.png", img);

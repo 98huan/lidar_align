@@ -11,8 +11,6 @@
 #include "lidar_align/sensors.h"
 
 namespace lidar_align {
-  std::string initial_pose;
-  std::stringstream strStr;
 
 class Aligner {
  public:
@@ -20,7 +18,9 @@ class Aligner {
   struct Config {
 //     bool local = false;  //先进行全局优化，再进行局部优化
     bool local = true;    //只进行局部优化
-    std::vector<double> inital_guess{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  //外参初值在launch文件中改
+    std::string initial_pose = "";  //读取rosparam的初始位姿字符串参数
+    std::vector<double> initial_guess{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};  //外参初值在launch文件中改
+    
     double max_time_offset = 0.1;   //default 最大的时间对准偏差
     double angular_range = 0.5;     //default 在初始估计位置的搜索范围（弧度）角度偏移上下限 +-0.5弧度
 //     double angular_range = 0.262;   //15度     

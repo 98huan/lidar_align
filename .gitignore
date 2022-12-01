@@ -1,4 +1,5 @@
 /cmake-build-debug
 /results/**
 .idea
-.vscode
+.vscode/c_cpp*
+.vscode/sett*
